@@ -7,10 +7,9 @@ class App extends Component {
 
   state = {
     list: [],
-    pagination: {
-      perPage: 3,
-      page: 0,
-    }
+    perPage: 3,
+    page: 0,
+    pages: 0,
   };
 
   componentDidMount() {
@@ -20,13 +19,23 @@ class App extends Component {
   makeHttpRequest = async() => {
     let res = await axios.get('http://localhost:8080/list').catch(err => console.log(err));
 
+    const {perPage} = this.state;
+    const {list} = res.data;
     this.setState({
-      list: [...res.data.list]
+      list: [...list],
+      pages: Math.floor(list.length / perPage)
     });
   };
 
+  handlePageClick = (event) => {
+    let page = event.selected;
+    this.setState({page})
+  }
+
   render() {
-    let weathers = this.state.list.map(item => {
+    const {page, perPage, pages, list} = this.state;
+    let items = list.slice(page * perPage, (page + 1) * perPage);
+    let weathers = items.map(item => {
       const { id, name, main } = item;
       const { temp, humidity, pressure } = main;
       const { speed } = item.wind;
@@ -62,7 +71,7 @@ class App extends Component {
           nextLabel={'next'}
           breakLabel={'...'}
           breakClassName={'break-me'}
-          pageCount={this.state.pageCount}
+          pageCount={pages}
           marginPagesDisplayed={2}
           pageRangeDisplayed={5}
           onPageChange={this.handlePageClick}
