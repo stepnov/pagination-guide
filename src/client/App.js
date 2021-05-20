@@ -22,7 +22,7 @@ class App extends Component {
     const {perPage} = this.state;
     const {list} = res.data;
     this.setState({
-      list: [...list],
+      list,
       pages: Math.floor(list.length / perPage)
     });
   };
@@ -51,7 +51,7 @@ class App extends Component {
     }) || '';
 
     return (
-      <div>
+      <>
         <table className='Table'>
           <thead>
           <tr>
@@ -67,18 +67,14 @@ class App extends Component {
           </tbody>
         </table>
         <ReactPaginate
-          previousLabel={'previous'}
+          previousLabel={'prev'}
           nextLabel={'next'}
-          breakLabel={'...'}
-          breakClassName={'break-me'}
           pageCount={pages}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
           onPageChange={this.handlePageClick}
           containerClassName={'pagination'}
           activeClassName={'active'}
         />
-      </div>
+      </>
     );
   }
 }
