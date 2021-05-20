@@ -1,23 +1,77 @@
 import React, { Component } from 'react';
 import './app.css';
-import ReactImage from './react.png';
+import axios from 'axios';
+import ReactPaginate from 'react-paginate';
 
-export default class App extends Component {
-  state = { username: null };
+class App extends Component {
+
+  state = {
+    list: [],
+    pagination: {
+      perPage: 3,
+      page: 0,
+    }
+  };
 
   componentDidMount() {
-    fetch('/api/getUsername')
-      .then(res => res.json())
-      .then(user => this.setState({ username: user.username }));
+    this.makeHttpRequest();
   }
 
+  makeHttpRequest = async() => {
+    let res = await axios.get('http://localhost:8080/list').catch(err => console.log(err));
+
+    this.setState({
+      list: [...res.data.list]
+    });
+  };
+
   render() {
-    const { username } = this.state;
+    let weathers = this.state.list.map(item => {
+      const { id, name, main } = item;
+      const { temp, humidity, pressure } = main;
+      const { speed } = item.wind;
+      return (
+        <tr key={id}>
+          <td>{name}</td>
+          <td>{temp}</td>
+          <td>{humidity}</td>
+          <td>{pressure}</td>
+          <td>{speed}</td>
+        </tr>
+      )
+    }) || '';
+
     return (
       <div>
-        {username ? <h1>{`Hello ${username}`}</h1> : <h1>Loading.. please wait!</h1>}
-        <img src={ReactImage} alt="react" />
+        <table className='Table'>
+          <thead>
+          <tr>
+            <th>Name of the city</th>
+            <th>Temperature</th>
+            <th>Humidity</th>
+            <th>Pressure</th>
+            <th>Wind Speed</th>
+          </tr>
+          </thead>
+          <tbody>
+          {weathers}
+          </tbody>
+        </table>
+        <ReactPaginate
+          previousLabel={'previous'}
+          nextLabel={'next'}
+          breakLabel={'...'}
+          breakClassName={'break-me'}
+          pageCount={this.state.pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={this.handlePageClick}
+          containerClassName={'pagination'}
+          activeClassName={'active'}
+        />
       </div>
     );
   }
 }
+
+export default App;
